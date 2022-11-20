@@ -55,11 +55,19 @@ describe('Basic user flow for Website', () => {
   // the button swaps to "Remove from Cart"
   it('Clicking the "Add to Cart" button should change button text', async () => {
     console.log('Checking the "Add to Cart" button...');
+    const AddtoCart = await page.$$('product-item');
     // TODO - Step 2
     // Query a <product-item> element using puppeteer ( checkout page.$() and page.$$() in the docs )
+    const prodItem = await page.$('product-item');
     // Grab the shadowRoot of that element (it's a property), then query a button from that shadowRoot.
+    let shadow = await prodItem.getProperty('shadowRoot')
+    let button = await shadow.$('button')
+    await button.click();
+    let innerText = await button.getProperty('innerHTML')
+    innerText = await innerText.jsonValue();
     // Once you have the button, you can click it and check the innerText property of the button.
     // Once you have the innerText property, use innerText.jsonValue() to get the text value of it
+    expect(innerText).toBe("Remove from Cart")
   }, 2500);
 
   // Check to make sure that after clicking "Add to Cart" on every <product-item> that the Cart
@@ -68,6 +76,18 @@ describe('Basic user flow for Website', () => {
     console.log('Checking number of items in cart on screen...');
     // TODO - Step 3
     // Query select all of the <product-item> elements, then for every single product element
+    const prodItems = await page.$$('product-item');
+    for (let i = 0; i < prodItems.length; i++)
+    {
+      let shadow = await prodItems[i].getProperty('shadowRoot');
+      let button = await shadow.$('button');
+      await button.click();
+    }
+    const cartCount = await page.$('#cart-count')
+    let innerText = await (cartCount.getProperty('innerHTML'))
+    innerText = await innerText.jsonValue()
+    expect(prodItems.length).toBe(20)
+
     // get the shadowRoot and query select the button inside, and click on it.
     // Check to see if the innerText of #cart-count is 20
   }, 10000);
